@@ -1,0 +1,22 @@
+{
+	"node": "n8n-nodes-base.AnchorBrowser",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": [
+		"Browser Automation",
+		"Web Scraping",
+		"AI Tools"
+	],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://docs.anchorbrowser.io/quickstart/get-api-key"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://docs.anchorbrowser.io"
+			}
+		]
+	}
+}

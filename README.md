@@ -1,48 +1,154 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# n8n-nodes-anchorbrowser
 
-# n8n-nodes-starter
+An n8n community node for integrating with the Anchor Browser API. This node provides comprehensive browser automation capabilities including session management, web scraping, AI-powered tasks, and OS-level control.
 
-This repo contains example nodes to help you get started building your own custom integrations for [n8n](https://n8n.io). It includes the node linter and other dependencies.
+## Features
 
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
+### Browser Sessions
+- **Create Session**: Start new browser sessions with customizable configurations
+- **Get Session**: Retrieve details of specific sessions
+- **List All Sessions**: Get status of all active sessions
+- **End Session**: Terminate specific sessions
+- **End All Sessions**: Terminate all active sessions
+- **Get Recordings**: Retrieve session recordings
+- **Get Downloads**: Get session downloads
 
-If you would like your node to be available on n8n cloud you can also [submit your node for verification](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/).
+### Profiles
+- **Get Profile**: Retrieve profile details
+- **List Profiles**: View all available profiles
+- **Update Profile**: Modify existing profiles (description only)
+- **Delete Profile**: Remove profiles
 
-## Prerequisites
+### Tools
+- **Fetch Webpage**: Get webpage content as HTML or Markdown (requires either Session ID or URL)
+- **Perform Web Task**: Execute AI-powered web tasks using various agents (requires either Session ID or URL)
+- **Take Screenshot**: Capture screenshots with customizable options (requires either Session ID or URL)
 
-You need the following installed on your development machine:
+> **Note**: Tools operations are flexible - you can either provide a Session ID to use an existing session, or provide a URL and let the system create a new session automatically. This makes the Tools operations perfect for quick, one-off tasks without needing to manage sessions manually.
 
-* [git](https://git-scm.com/downloads)
-* Node.js and npm. Minimum version Node 20. You can find instructions on how to install both using nvm (Node Version Manager) for Linux, Mac, and WSL [here](https://github.com/nvm-sh/nvm). For Windows users, refer to Microsoft's guide to [Install NodeJS on Windows](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
-* Install n8n with:
-  ```
-  npm install n8n -g
-  ```
-* Recommended: follow n8n's guide to [set up your development environment](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/).
+### OS Level Control
+- **Mouse Actions**: Click, double-click, move, drag and drop (requires Session ID)
+- **Keyboard Input**: Type text, use shortcuts (requires Session ID)
+- **Scrolling**: Scroll pages with customizable parameters (requires Session ID)
+- **Clipboard**: Get/set clipboard content, copy/paste text (requires Session ID)
+- **Navigation**: Navigate to URLs (requires Session ID)
+- **Screenshots**: Capture current session screenshots (requires Session ID)
 
-## Using this starter
+## Installation
 
-These are the basic steps for working with the starter. For detailed guidance on creating and publishing nodes, refer to the [documentation](https://docs.n8n.io/integrations/creating-nodes/).
+1. Install the node package:
+```bash
+npm install n8n-nodes-anchorbrowser
+```
 
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository.
-2. Clone your new repo:
-   ```
-   git clone https://github.com/<your organization>/<your-repo-name>.git
-   ```
-3. Run `npm i` to install dependencies.
-4. Open the project in your editor.
-5. Browse the examples in `/nodes` and `/credentials`. Modify the examples, or replace them with your own nodes.
-6. Update the `package.json` to match your details.
-7. Run `npm run lint` to check for errors or `npm run lintfix` to automatically fix errors when possible.
-8. Test your node locally. Refer to [Run your node locally](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) for guidance.
-9. Replace this README with documentation for your node. Use the [README_TEMPLATE](README_TEMPLATE.md) to get started.
-10. Update the LICENSE file to use your details.
-11. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
+2. Or build from source:
+```bash
+git clone https://github.com/anchorbrowser/n8n-nodes-anchorbrowser.git
+cd n8n-nodes-anchorbrowser
+npm install
+npm run build
+```
 
-## More information
+## Configuration
 
-Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/) for detailed information on building your own nodes.
+### Credentials
+
+1. Get your API key from [Anchor Browser Dashboard](https://app.anchorbrowser.io?utm_source=n8n-node)
+2. In n8n, go to Credentials and create a new "Anchor Browser API" credential
+3. Enter your API key and base URL (default: https://api.anchorbrowser.io)
+
+### Node Usage
+
+1. Add the "Anchor Browser" node to your workflow
+2. Select the resource type (Browser Session, Profile, Tools, etc.)
+3. Choose the operation you want to perform
+4. Configure the parameters as needed
+5. Connect the node to your workflow
+
+## Examples
+
+### Basic Web Scraping
+
+1. **Create Session**: Start a new browser session
+2. **Navigate**: Go to the target website using OS Control
+3. **Fetch Webpage**: Get the page content as HTML or Markdown
+4. **End Session**: Clean up the session
+
+### AI-Powered Task Automation
+
+1. **Perform Web Task**: Use AI to complete tasks like form filling or data extraction (provides URL directly)
+2. **Get Results**: Retrieve the task results
+
+### Session-Based Automation
+
+1. **Create Session**: Start a browser session
+2. **Navigate**: Go to target website using OS Control
+3. **Mouse Actions**: Click buttons, fill forms using OS Control
+4. **Take Screenshot**: Capture the result
+5. **End Session**: Clean up
+
+### Profile Management
+
+1. **List Profiles**: View all available profiles
+2. **Get Profile**: Retrieve specific profile details
+3. **Update Profile**: Modify profile description
+4. **Delete Profile**: Remove unused profiles
+
+## Configuration Options
+
+### Session Configuration
+- **Initial URL**: Starting page for the browser
+- **Recording**: Enable/disable video recording
+- **Timeouts**: Set maximum duration and idle timeouts
+- **Live View**: Configure read-only viewing options
+
+### Browser Configuration
+- **Profile Management**: Use existing profiles or create new ones
+- **Ad Blocking**: Enable/disable ad blocking
+- **Captcha Solving**: Configure AI-powered captcha solving
+- **Viewport**: Set browser window dimensions
+- **Headless Mode**: Run browser in headless or headful mode
+- **Web Security**: Disable web security features if needed
+
+### Proxy Configuration
+- **Anchor Proxies**: Use Anchor's residential, mobile, or government proxies
+- **Custom Proxies**: Configure your own proxy servers
+- **Geographic Targeting**: Select specific countries, regions, or cities
+
+### Tools Configuration
+- **Session ID**: Optional - if not provided, a new session will be created automatically
+- **URL**: Required for Tools operations if Session ID is not provided
+- **Format**: Choose between HTML and Markdown for webpage content
+- **AI Models**: Select from various AI providers (OpenAI, Groq, etc.)
+- **Screenshot Options**: Configure image quality, dimensions, and capture settings
+
+## API Reference
+
+For detailed API documentation, visit [Anchor Browser API Docs](https://docs.anchorbrowser.io?utm_source=n8n-node).
+
+## Support
+
+- **Documentation**: [https://docs.anchorbrowser.io?utm_source=n8n-node](https://docs.anchorbrowser.io?utm_source=n8n-node)
+- **Support**: [support@anchorbrowser.io](mailto:support@anchorbrowser.io)
+- **GitHub Issues**: [https://github.com/anchorbrowser/n8n-nodes-anchorbrowser/issues](https://github.com/anchorbrowser/n8n-nodes-anchorbrowser/issues)
 
 ## License
 
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) and submit pull requests to our [GitHub repository](https://github.com/anchorbrowser/n8n-nodes-anchorbrowser).
+
+## Changelog
+
+### v0.1.0
+- Initial release
+- Browser session management (create, get, list, end)
+- Profile management (get, list, update, delete)
+- Tools operations (fetch webpage, perform web task, screenshot)
+- OS-level control (mouse, keyboard, scrolling, clipboard, navigation)
+- Flexible session handling - Tools operations can work with or without existing sessions
+- Comprehensive parameter validation and error handling
+- Support for binary data (screenshots) with proper n8n formatting
+- AI-powered task execution with multiple provider support

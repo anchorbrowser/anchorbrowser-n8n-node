@@ -1,19 +1,23 @@
 {
-  "name": "n8n-nodes-<...>",
+  "name": "anchorbrowser-n8n-node",
   "version": "0.1.0",
-  "description": "",
+  "description": "n8n node for Anchor Browser API - browser automation and control",
   "keywords": [
-    "n8n-community-node-package"
+    "n8n-community-node-package",
+    "browser-automation",
+    "web-scraping",
+    "ai-tools",
+    "anchorbrowser"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://anchorbrowser.io",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "Anchor Browser",
+    "email": "support@anchorbrowser.io"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+    "url": "https://github.com/anchorbrowser/n8n-nodes-anchorbrowser.git"
   },
   "engines": {
     "node": ">=20.15"
@@ -33,12 +37,10 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/ExampleCredentialsApi.credentials.js",
-      "dist/credentials/HttpBinApi.credentials.js"
+      "dist/credentials/AnchorBrowserApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/ExampleNode/ExampleNode.node.js",
-      "dist/nodes/HttpBin/HttpBin.node.js"
+      "dist/nodes/AnchorBrowser/AnchorBrowser.node.js"
     ]
   },
   "devDependencies": {

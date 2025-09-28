@@ -5,25 +5,27 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export class HttpBinApi implements ICredentialType {
-	name = 'httpbinApi';
-	displayName = 'HttpBin API';
-	documentationUrl = 'https://your-docs-url';
+export class AnchorBrowserApi implements ICredentialType {
+	name = 'anchorBrowserApi';
+	displayName = 'Anchor Browser API';
+	documentationUrl = 'https://docs.anchorbrowser.io';
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Token',
-			name: 'token',
+			displayName: 'API Key',
+			name: 'apiKey',
 			type: 'string',
 			default: '',
 			typeOptions: {
 				password: true,
-			}
+			},
+			description: 'Your Anchor Browser API key',
 		},
 		{
-			displayName: 'Domain',
-			name: 'domain',
+			displayName: 'Base URL',
+			name: 'baseUrl',
 			type: 'string',
-			default: 'https://httpbin.org',
+			default: 'https://api.anchorbrowser.io',
+			description: 'The base URL for the Anchor Browser API',
 		},
 	];
 
@@ -35,7 +37,7 @@ export class HttpBinApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			headers: {
-				Authorization: '={{"Bearer " + $credentials.token}}',
+				'anchor-api-key': '={{$credentials.apiKey}}',
 			},
 		},
 	};
@@ -43,8 +45,8 @@ export class HttpBinApi implements ICredentialType {
 	// The block below tells how this credential can be tested
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials?.domain}}',
-			url: '/bearer',
+			baseURL: '={{$credentials?.baseUrl}}',
+			url: '/v1/sessions/all/status',
 		},
 	};
 }
