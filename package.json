@@ -10,14 +10,14 @@
     "anchorbrowser"
   ],
   "license": "MIT",
-  "homepage": "https://anchorbrowser.io",
+  "homepage": "https://anchorbrowser.io?utm_source=n8n-node",
   "author": {
     "name": "Anchor Browser",
     "email": "support@anchorbrowser.io"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/anchorbrowser/n8n-nodes-anchorbrowser.git"
+    "url": "https://github.com/anchorbrowser/anchorbrowser-n8n-nodes.git"
   },
   "engines": {
     "node": ">=20.15"
