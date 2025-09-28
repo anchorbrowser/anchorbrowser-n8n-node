@@ -1,5 +1,5 @@
 {
-  "name": "anchorbrowser-n8n-node",
+  "name": "n8n-nodes-anchorbrowser",
   "version": "0.1.0",
   "description": "n8n node for Anchor Browser API - browser automation and control",
   "keywords": [
