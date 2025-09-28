@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-anchorbrowser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "n8n node for Anchor Browser API - browser automation and control",
   "keywords": [
     "n8n-community-node-package",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/anchorbrowser/anchorbrowser-n8n-nodes.git"
+    "url": "https://github.com/anchorbrowser/anchorbrowser-n8n-node.git"
   },
   "engines": {
     "node": ">=20.15"
