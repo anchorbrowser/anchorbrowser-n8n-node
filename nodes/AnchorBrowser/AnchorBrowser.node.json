@@ -10,12 +10,12 @@
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://docs.anchorbrowser.io/quickstart/get-api-key"
+				"url": "https://app.anchorbrowser.io/api-keys?utm_source=n8n-node"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://docs.anchorbrowser.io"
+				"url": "https://docs.anchorbrowser.io?utm_source=n8n-node"
 			}
 		]
 	}
