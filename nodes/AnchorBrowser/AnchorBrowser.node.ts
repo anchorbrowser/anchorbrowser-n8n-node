@@ -1,5 +1,4 @@
 import { IExecuteFunctions, INodeExecutionData, INodeType, INodeTypeDescription, NodeOperationError } from 'n8n-workflow';
-import { Buffer } from 'buffer';
 
 export class AnchorBrowser implements INodeType {
 	description: INodeTypeDescription = {
@@ -1828,38 +1827,24 @@ export class AnchorBrowser implements INodeType {
 				// Debug: Log response info
 				context.logger?.info('Screenshot Tools - Response received, status: ' + response.status);
 				context.logger?.info('Screenshot Tools - Response body type: ' + typeof response.body);
-				context.logger?.info('Screenshot Tools - Response body is Buffer: ' + Buffer.isBuffer(response.body));
 				
-				// Handle the response like the working test script: arrayBuffer() -> Buffer.from()
-				let binaryData: Buffer;
-				if (Buffer.isBuffer(response.body)) {
-					binaryData = response.body;
-					context.logger?.info('Screenshot Tools - Response body is already a Buffer');
-				} else {
-					// Convert to Buffer like the test script does - response.body is binary data, not base64
-					binaryData = Buffer.from(response.body);
-					context.logger?.info('Screenshot Tools - Converted response body to Buffer');
-				}
-				
+				const binaryData = response.body;
+				context.logger?.info('Screenshot Tools - Response body');
+								
 				// Convert to base64 for n8n binary data structure
-				const base64Data = binaryData.toString('base64');
-				context.logger?.info('Screenshot Tools - Binary data size: ' + binaryData.length + ' bytes');
+				const base64Data = binaryData.toString('base64') || binaryData;
+				const fileName = `screenshot-${Date.now()}.png`;
 				context.logger?.info('Screenshot Tools - Base64 data length: ' + base64Data.length + ' characters');
 				
 				const result = {
 					json: {
 						message: 'Screenshot captured successfully',
+						screenshot: base64Data,
 						timestamp: new Date().toISOString(),
 						format: 'png',
-					},
-					binary: {
-						screenshot: {
-							data: base64Data,
-							mimeType: 'image/png',
-							fileExtension: 'png',
-							fileName: `screenshot-${Date.now()}.png`,
-						},
-					},
+						mimeType: 'image/png',
+						fileName: fileName,
+					}
 				};
 				
 				context.logger?.info('Screenshot Tools - Returning result with binary data');
@@ -2283,38 +2268,24 @@ export class AnchorBrowser implements INodeType {
 				// Debug: Log response info
 				context.logger?.info('Screenshot OS Control - Response received, status: ' + response.status);
 				context.logger?.info('Screenshot OS Control - Response body type: ' + typeof response.body);
-				context.logger?.info('Screenshot OS Control - Response body is Buffer: ' + Buffer.isBuffer(response.body));
 				
 				// Handle the response like the working test script: arrayBuffer() -> Buffer.from()
-				let binaryData: Buffer;
-				if (Buffer.isBuffer(response.body)) {
-					binaryData = response.body;
-					context.logger?.info('Screenshot OS Control - Response body is already a Buffer');
-				} else {
-					// Convert to Buffer like the test script does - response.body is binary data, not base64
-					binaryData = Buffer.from(response.body);
-					context.logger?.info('Screenshot OS Control - Converted response body to Buffer');
-				}
+				const binaryData = response.body;
+				context.logger?.info('Screenshot OS Control - Response body');
 				
-				// Convert to base64 for n8n binary data structure
-				const base64Data = binaryData.toString('base64');
-				context.logger?.info('Screenshot OS Control - Binary data size: ' + binaryData.length + ' bytes');
+				const fileName = `screenshot-${Date.now()}.png`;
+				const base64Data = binaryData.toString('base64') || binaryData;
 				context.logger?.info('Screenshot OS Control - Base64 data length: ' + base64Data.length + ' characters');
 				
-				const result = {
+				const result: any = {
 					json: {
 						message: 'Screenshot captured successfully',
+						screenshot: base64Data,
 						timestamp: new Date().toISOString(),
 						format: 'png',
-					},
-					binary: {
-						screenshot: {
-							data: base64Data,
-							mimeType: 'image/png',
-							fileExtension: 'png',
-							fileName: `screenshot-${Date.now()}.png`,
-						},
-					},
+						mimeType: 'image/png',
+						fileName: fileName,
+					}
 				};
 				
 				context.logger?.info('Screenshot OS Control - Returning result with binary data');
