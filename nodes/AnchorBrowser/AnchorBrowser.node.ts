@@ -50,6 +50,10 @@ export class AnchorBrowser implements INodeType {
 						value: 'profile',
 					},
 					{
+						name: 'Task',
+						value: 'task',
+					},
+					{
 						name: 'Tool',
 						value: 'tools',
 					},
@@ -185,6 +189,86 @@ export class AnchorBrowser implements INodeType {
 				],
 				default: 'fetchWebpage',
 			},
+			// Task Operations
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['task'],
+					},
+				},
+				options: [
+					{
+						name: 'Create Task',
+						value: 'create',
+						description: 'Create a new task or update existing task',
+						action: 'Create task',
+					},
+					{
+						name: 'Delete Task',
+						value: 'delete',
+						description: 'Delete a task',
+						action: 'Delete task',
+					},
+					{
+						name: 'Deploy Task',
+						value: 'deploy',
+						description: 'Deploy a task version',
+						action: 'Deploy task',
+					},
+					{
+						name: 'List Executions',
+						value: 'listExecutions',
+						description: 'List task execution results',
+						action: 'List task executions',
+					},
+					{
+						name: 'List Tasks',
+						value: 'list',
+						description: 'List all tasks',
+						action: 'List tasks',
+					},
+					{
+						name: 'Run Task',
+						value: 'run',
+						description: 'Execute a task',
+						action: 'Run task',
+					},
+				],
+				default: 'list',
+			},
+			// List Tasks Configuration
+			{
+				displayName: 'List Tasks Configuration',
+				name: 'listTasksConfig',
+				type: 'collection',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['list'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Page',
+						name: 'page',
+						type: 'string',
+						default: '1',
+						description: 'Page number',
+					},
+					{
+						displayName: 'Limit',
+						name: 'limit',
+						type: 'string',
+						default: '10',
+						description: 'Number of results per page',
+					},
+				],
+			},
 			// OS Level Control Operations
 			{
 				displayName: 'Operation',
@@ -314,6 +398,21 @@ export class AnchorBrowser implements INodeType {
 					},
 				},
 				description: 'The ID of the browser session (optional - if not provided, a new session will be created)',
+			},
+			// Task ID field (for task operations)
+			{
+				displayName: 'Task ID',
+				name: 'taskId',
+				type: 'string',
+				default: '',
+				
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['delete', 'run', 'deploy', 'listExecutions'],
+					},
+				},
+				description: 'The ID of the task (required for most task operations)',
 			},
 			// Profile Name field (used by profile operations)
 			{
@@ -708,6 +807,10 @@ export class AnchorBrowser implements INodeType {
 								value: 'browser-use',
 							},
 							{
+								name: 'Gemini Computer Use',
+								value: 'gemini-computer-use',
+							},
+							{
 								name: 'OpenAI CUA',
 								value: 'openai-cua',
 							},
@@ -716,11 +819,32 @@ export class AnchorBrowser implements INodeType {
 						description: 'The AI agent to use for task completion',
 					},
 					{
+						displayName: 'Detect Elements',
+						name: 'detectElements',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to detect elements during task execution',
+					},
+					{
+						displayName: 'Extended System Message',
+						name: 'extendedSystemMessage',
+						type: 'string',
+						default: '',
+						description: 'Extended system message to provide additional context for the AI agent',
+					},
+					{
 						displayName: 'Highlight Elements',
 						name: 'highlightElements',
 						type: 'boolean',
 						default: true,
 						description: 'Whether to highlight elements during task execution',
+					},
+					{
+						displayName: 'Human Intervention',
+						name: 'humanIntervention',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to allow human intervention during task execution',
 					},
 					{
 						displayName: 'Max Steps',
@@ -780,11 +904,25 @@ export class AnchorBrowser implements INodeType {
 						description: 'The AI provider to use for task completion',
 					},
 					{
+						displayName: 'Secret Values',
+						name: 'secretValues',
+						type: 'json',
+						default: '{}',
+						description: 'Secret values (key-value pairs) to be used during task execution. Keys must start with ANCHOR_.',
+					},
+					{
 						displayName: 'URL',
 						name: 'url',
 						type: 'string',
 						default: '',
 						description: 'The URL to perform the task on (required)',
+					},
+					{
+						displayName: 'Use Vision',
+						name: 'useVision',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to use vision capabilities for the AI agent',
 					},
 				],
 			},
@@ -1221,6 +1359,198 @@ export class AnchorBrowser implements INodeType {
 					},
 				],
 			},
+			// Create Task Configuration
+			{
+				displayName: 'Create Task Configuration',
+				name: 'createTaskConfig',
+				type: 'collection',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['create'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Name',
+						name: 'name',
+						type: 'string',
+						default: '',
+						description: 'Task name (letters, numbers, hyphens, and underscores only)',
+					},
+					{
+						displayName: 'Description',
+						name: 'description',
+						type: 'string',
+						default: '',
+						description: 'Optional description of the task',
+					},
+					{
+						displayName: 'Code',
+						name: 'code',
+						type: 'string',
+						default: '',
+						description: 'Base64 encoded task code (optional)',
+					},
+					{
+						displayName: 'Language',
+						name: 'language',
+						type: 'options',
+						options: [
+							{
+								name: 'TypeScript',
+								value: 'typescript',
+							},
+						],
+						default: 'typescript',
+						description: 'Programming language for the task',
+					},
+				],
+			},
+			// Run Task Configuration
+			{
+				displayName: 'Run Task Configuration',
+				name: 'runTaskConfig',
+				type: 'collection',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['run'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Version',
+						name: 'version',
+						type: 'string',
+						default: 'latest',
+						description: 'Version to run (draft, latest, or version number)',
+					},
+					{
+						displayName: 'Session ID',
+						name: 'sessionId',
+						type: 'string',
+						default: '',
+						description: 'Optional existing session ID to use',
+					},
+					{
+						displayName: 'Inputs',
+						name: 'inputs',
+						type: 'json',
+						default: '{}',
+						description: 'Environment variables for task execution (keys must start with ANCHOR_)',
+					},
+				],
+			},
+			// Deploy Task Configuration
+			{
+				displayName: 'Deploy Task Configuration',
+				name: 'deployTaskConfig',
+				type: 'collection',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['deploy'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Code',
+						name: 'code',
+						type: 'string',
+						default: '',
+						description: 'Base64 encoded task code (required for new versions)',
+					},
+					{
+						displayName: 'Language',
+						name: 'language',
+						type: 'options',
+						options: [
+							{
+								name: 'TypeScript',
+								value: 'typescript',
+							},
+						],
+						default: 'typescript',
+						description: 'Programming language for the task',
+					},
+					{
+						displayName: 'Description',
+						name: 'description',
+						type: 'string',
+						default: '',
+						description: 'Optional description of the version',
+					},
+				],
+			},
+			// List Executions Configuration
+			{
+				displayName: 'List Executions Configuration',
+				name: 'listExecutionsConfig',
+				type: 'collection',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['listExecutions'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Page',
+						name: 'page',
+						type: 'string',
+						default: '1',
+						description: 'Page number',
+					},
+					{
+						displayName: 'Limit',
+						name: 'limit',
+						type: 'string',
+						default: '10',
+						description: 'Number of results per page',
+					},
+					{
+						displayName: 'Status',
+						name: 'status',
+						type: 'options',
+						options: [
+							{
+								name: 'All',
+								value: '',
+							},
+							{
+								name: 'Cancelled',
+								value: 'cancelled',
+							},
+							{
+								name: 'Failure',
+								value: 'failure',
+							},
+							{
+								name: 'Success',
+								value: 'success',
+							},
+							{
+								name: 'Timeout',
+								value: 'timeout',
+							},
+						],
+						default: '',
+						description: 'Filter by execution status',
+					},
+					{
+						displayName: 'Version',
+						name: 'version',
+						type: 'string',
+						default: '',
+						description: 'Filter by task version (draft, latest, or version number)',
+					},
+				],
+			},
 		],
 	};
 
@@ -1243,6 +1573,8 @@ export class AnchorBrowser implements INodeType {
 					responseData = await AnchorBrowser.executeToolsOperation(this, operation, i);
 				} else if (resource === 'osControl') {
 					responseData = await AnchorBrowser.executeOSControlOperation(this, operation, i);
+				} else if (resource === 'task') {
+					responseData = await AnchorBrowser.executeTaskOperation(this, operation, i);
 				}
 
 				// Handle different response structures based on operation
@@ -1726,21 +2058,54 @@ export class AnchorBrowser implements INodeType {
 				if (performWebTaskConfig.agent !== undefined) {
 					apiBody.agent = performWebTaskConfig.agent;
 				}
-				if (performWebTaskConfig.outputSchema !== undefined) {
-					context.logger?.info('Output schema: ' + JSON.stringify(performWebTaskConfig.outputSchema, null, 2)); 
-					apiBody.output_schema = performWebTaskConfig.outputSchema;
+				if (performWebTaskConfig.detectElements !== undefined) {
+					apiBody.detect_elements = performWebTaskConfig.detectElements;
+				}
+				if (performWebTaskConfig.extendedSystemMessage !== undefined && performWebTaskConfig.extendedSystemMessage.trim() !== '') {
+					apiBody.extended_system_message = performWebTaskConfig.extendedSystemMessage;
 				}
 				if (performWebTaskConfig.highlightElements !== undefined) {
 					apiBody.highlight_elements = performWebTaskConfig.highlightElements;
 				}
-				if (performWebTaskConfig.provider !== undefined) {
-					apiBody.provider = performWebTaskConfig.provider;
+				if (performWebTaskConfig.humanIntervention !== undefined) {
+					apiBody.human_intervention = performWebTaskConfig.humanIntervention;
+				}
+				if (performWebTaskConfig.maxSteps !== undefined) {
+					apiBody.max_steps = performWebTaskConfig.maxSteps;
 				}
 				if (performWebTaskConfig.model !== undefined) {
 					apiBody.model = performWebTaskConfig.model;
 				}
-				if (performWebTaskConfig.maxSteps !== undefined) {
-					apiBody.max_steps = performWebTaskConfig.maxSteps;
+				if (performWebTaskConfig.outputSchema !== undefined) {
+					// Parse JSON if it's a string
+					let outputSchema = performWebTaskConfig.outputSchema;
+					if (typeof outputSchema === 'string') {
+						try {
+							outputSchema = JSON.parse(outputSchema);
+						} catch (e) {
+							throw new NodeOperationError(context.getNode(), 'Invalid JSON in Output Schema: ' + e.message);
+						}
+					}
+					context.logger?.info('Output schema: ' + JSON.stringify(outputSchema, null, 2)); 
+					apiBody.output_schema = outputSchema;
+				}
+				if (performWebTaskConfig.provider !== undefined) {
+					apiBody.provider = performWebTaskConfig.provider;
+				}
+				if (performWebTaskConfig.secretValues !== undefined) {
+					// Parse JSON if it's a string
+					let secretValues = performWebTaskConfig.secretValues;
+					if (typeof secretValues === 'string') {
+						try {
+							secretValues = JSON.parse(secretValues);
+						} catch (e) {
+							throw new NodeOperationError(context.getNode(), 'Invalid JSON in Secret Values: ' + e.message);
+						}
+					}
+					apiBody.secret_values = secretValues;
+				}
+				if (performWebTaskConfig.useVision !== undefined) {
+					apiBody.use_vision = performWebTaskConfig.useVision;
 				}
 				
 				// Debug: Log the request body
@@ -2294,6 +2659,154 @@ export class AnchorBrowser implements INodeType {
 
 			default:
 				throw new NodeOperationError(context.getNode(), `Unknown OS control operation: ${operation}`);
+		}
+	}
+
+	private static async executeTaskOperation(context: IExecuteFunctions, operation: string, itemIndex: number): Promise<any> {
+		const baseUrl = context.getNodeParameter('baseUrl', itemIndex, 'https://api.anchorbrowser.io') as string;
+
+		switch (operation) {
+			case 'create': {
+				const createTaskConfig = context.getNodeParameter('createTaskConfig', itemIndex, {}) as any;
+				
+				// Validate required parameters
+				if (!createTaskConfig.name || createTaskConfig.name.trim() === '') {
+					throw new NodeOperationError(context.getNode(), 'Task name is required for create task operation');
+				}
+				
+				// Map task configuration to correct API structure
+				const body: any = {
+					name: createTaskConfig.name,
+					language: createTaskConfig.language || 'typescript',
+				};
+				
+				if (createTaskConfig.description !== undefined) {
+					body.description = createTaskConfig.description;
+				}
+				if (createTaskConfig.code !== undefined) {
+					body.code = createTaskConfig.code;
+				}
+				
+				return await context.helpers.httpRequestWithAuthentication.call(context, 'anchorBrowserApi', {
+					method: 'POST',
+					url: `${baseUrl}/v1/task`,
+					body,
+				});
+			}
+
+			case 'list': {
+				const listTasksConfig = context.getNodeParameter('listTasksConfig', itemIndex, {}) as any;
+				const page = listTasksConfig.page || '1';
+				const limit = listTasksConfig.limit || '10';
+				
+				return await context.helpers.httpRequestWithAuthentication.call(context, 'anchorBrowserApi', {
+					method: 'GET',
+					url: `${baseUrl}/v1/task`,
+					qs: { page, limit },
+				});
+			}
+
+			case 'delete': {
+				const taskId = context.getNodeParameter('taskId', itemIndex) as string;
+				return await context.helpers.httpRequestWithAuthentication.call(context, 'anchorBrowserApi', {
+					method: 'DELETE',
+					url: `${baseUrl}/v1/task/${taskId}`,
+				});
+			}
+
+			case 'run': {
+				const taskId = context.getNodeParameter('taskId', itemIndex) as string;
+				const runTaskConfig = context.getNodeParameter('runTaskConfig', itemIndex, {}) as any;
+				
+				// Map run task configuration to correct API structure
+				const body: any = {
+					taskId: taskId,
+				};
+				
+				if (runTaskConfig.version !== undefined) {
+					body.version = runTaskConfig.version;
+				}
+				if (runTaskConfig.sessionId !== undefined) {
+					body.sessionId = runTaskConfig.sessionId;
+				}
+				if (runTaskConfig.taskSessionId !== undefined) {
+					body.taskSessionId = runTaskConfig.taskSessionId;
+				}
+				if (runTaskConfig.inputs !== undefined) {
+					// Parse JSON if it's a string
+					let inputs = runTaskConfig.inputs;
+					if (typeof inputs === 'string') {
+						try {
+							inputs = JSON.parse(inputs);
+						} catch (e) {
+							throw new NodeOperationError(context.getNode(), 'Invalid JSON in Inputs: ' + e.message);
+						}
+					}
+					body.inputs = inputs;
+				}
+				
+				return await context.helpers.httpRequestWithAuthentication.call(context, 'anchorBrowserApi', {
+					method: 'POST',
+					url: `${baseUrl}/v1/task/run`,
+					body,
+				});
+				
+			}
+
+			case 'deploy': {
+				const taskId = context.getNodeParameter('taskId', itemIndex) as string;
+				const deployTaskConfig = context.getNodeParameter('deployTaskConfig', itemIndex, {}) as any;
+				
+				// Map deploy task configuration to correct API structure
+				const body: any = {};
+				
+				if (deployTaskConfig.code !== undefined) {
+					body.code = deployTaskConfig.code;
+				}
+				if (deployTaskConfig.language !== undefined) {
+					body.language = deployTaskConfig.language;
+				}
+				if (deployTaskConfig.description !== undefined) {
+					body.description = deployTaskConfig.description;
+				}
+				
+				return await context.helpers.httpRequestWithAuthentication.call(context, 'anchorBrowserApi', {
+					method: 'POST',
+					url: `${baseUrl}/v1/task/${taskId}/deploy`,
+					body,
+				});
+			}
+
+			case 'listExecutions': {
+				const taskId = context.getNodeParameter('taskId', itemIndex) as string;
+				const listExecutionsConfig = context.getNodeParameter('listExecutionsConfig', itemIndex, {}) as any;
+				
+				// Build query parameters
+				const qs: any = {
+					page: listExecutionsConfig.page || '1',
+					limit: listExecutionsConfig.limit || '10',
+				};
+				
+				// Only add status if it's a non-empty string
+				if (listExecutionsConfig.status && listExecutionsConfig.status.trim() !== '') {
+					qs.status = listExecutionsConfig.status;
+				}
+				// Only add version if it's a non-empty string
+				if (listExecutionsConfig.version && listExecutionsConfig.version.trim() !== '') {
+					qs.version = listExecutionsConfig.version;
+				}
+				
+				const fullUrl = `${baseUrl}/v1/task/${taskId}/executions`;
+				
+				return await context.helpers.httpRequestWithAuthentication.call(context, 'anchorBrowserApi', {
+					method: 'GET',
+					url: fullUrl,
+					qs,
+				});
+			}
+
+			default:
+				throw new NodeOperationError(context.getNode(), `Unknown task operation: ${operation}`);
 		}
 	}
 
