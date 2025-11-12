@@ -220,6 +220,12 @@ export class AnchorBrowser implements INodeType {
 						action: 'Deploy task',
 					},
 					{
+						name: 'Get Execution',
+						value: 'getExecution',
+						description: 'Get a specific execution result by ID',
+						action: 'Get execution result',
+					},
+					{
 						name: 'List Executions',
 						value: 'listExecutions',
 						description: 'List task execution results',
@@ -409,10 +415,25 @@ export class AnchorBrowser implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['task'],
-						operation: ['delete', 'run', 'deploy', 'listExecutions'],
+						operation: ['delete', 'run', 'deploy', 'listExecutions', 'getExecution'],
 					},
 				},
 				description: 'The ID of the task (required for most task operations)',
+			},
+			// Execution ID field (for get execution operation)
+			{
+				displayName: 'Execution ID',
+				name: 'executionId',
+				type: 'string',
+				default: '',
+				
+				displayOptions: {
+					show: {
+						resource: ['task'],
+						operation: ['getExecution'],
+					},
+				},
+				description: 'The ID of the execution result to retrieve',
 			},
 			// Profile Name field (used by profile operations)
 			{
@@ -500,6 +521,13 @@ export class AnchorBrowser implements INodeType {
 						description: 'Whether to enable or disable ad-blocking',
 					},
 					{
+						displayName: 'Bypass CSP',
+						name: 'bypassCSP',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to bypass Content Security Policy',
+					},
+					{
 						displayName: 'Captcha Solver Active',
 						name: 'captchaSolverActive',
 						type: 'boolean',
@@ -507,11 +535,51 @@ export class AnchorBrowser implements INodeType {
 						description: 'Whether to enable or disable captcha-solving',
 					},
 					{
+						displayName: 'Disable Back Forward Cache',
+						name: 'disableBackForwardCache',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to disable back/forward cache',
+					},
+					{
+						displayName: 'Disable Page Hooks',
+						name: 'disablePageHooks',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to disable page hooks',
+					},
+					{
 						displayName: 'Disable Web Security',
 						name: 'disableWebSecurity',
 						type: 'boolean',
 						default: false,
 						description: 'Whether to disable web security features (CORS, same-origin policy, etc.)',
+					},
+					{
+						displayName: 'Extensions',
+						name: 'extensions',
+						type: 'string',
+						default: '',
+						description: 'Comma-separated list of extension IDs (UUIDs) to load in the browser session. Extensions must be previously uploaded using the Extensions API.',
+					},
+					{
+						displayName: 'Extra Stealth Active',
+						name: 'extraStealthActive',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to enable or disable extra stealth mode to enhance browser fingerprinting protection',
+					},
+					{
+						displayName: 'Extra Stealth Type',
+						name: 'extraStealthType',
+						type: 'string',
+						default: '',
+						displayOptions: {
+							show: {
+								extraStealthActive: [true],
+							},
+						},
+						description: 'Type of extra stealth mode (optional)',
 					},
 					{
 						displayName: 'Fullscreen Mode',
@@ -528,6 +596,27 @@ export class AnchorBrowser implements INodeType {
 						description: 'Whether the browser should be headless or headful',
 					},
 					{
+						displayName: 'Inspector Active',
+						name: 'inspectorActive',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to enable browser inspector',
+					},
+					{
+						displayName: 'Media Blocker Active',
+						name: 'mediaBlockerActive',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to block media (images and videos)',
+					},
+					{
+						displayName: 'Memory Reduction Active',
+						name: 'memoryReductionActive',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to enable memory reduction mode',
+					},
+					{
 						displayName: 'P2P Download Active',
 						name: 'p2pDownloadActive',
 						type: 'boolean',
@@ -535,11 +624,30 @@ export class AnchorBrowser implements INodeType {
 						description: 'Whether to enable or disable P2P downloads',
 					},
 					{
+						displayName: 'PDF Viewer Active',
+						name: 'pdfViewerActive',
+						type: 'boolean',
+						default: true,
+						description: 'Whether to enable PDF viewer (disable to download PDFs instead)',
+					},
+					{
 						displayName: 'Persist Profile',
 						name: 'persistProfile',
 						type: 'boolean',
 						default: false,
 						description: 'Whether the browser session profile data should be saved when the browser session ends',
+					},
+					{
+						displayName: 'Platform Version',
+						name: 'platformVersion',
+						type: 'string',
+						default: '',
+						displayOptions: {
+							show: {
+								uaOverrideActive: [true],
+							},
+						},
+						description: 'Platform version (e.g., "15.0.0")',
 					},
 					{
 						displayName: 'Popup Blocker Active',
@@ -563,6 +671,32 @@ export class AnchorBrowser implements INodeType {
 						description: 'Whether to reset the profile preferences on session creation',
 					},
 					{
+						displayName: 'Store Profile Cache',
+						name: 'storeProfileCache',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to store profile cache when persisting profile',
+					},
+					{
+						displayName: 'User Agent Override Active',
+						name: 'uaOverrideActive',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to enable user agent override',
+					},
+					{
+						displayName: 'User Agent Version',
+						name: 'uaVersion',
+						type: 'string',
+						default: '',
+						displayOptions: {
+							show: {
+								uaOverrideActive: [true],
+							},
+						},
+						description: 'User agent version (e.g., "120.0.0.0")',
+					},
+					{
 						displayName: 'Viewport Height',
 						name: 'viewportHeight',
 						type: 'number',
@@ -575,6 +709,20 @@ export class AnchorBrowser implements INodeType {
 						type: 'number',
 						default: 1440,
 						description: 'Width of the viewport in pixels',
+					},
+					{
+						displayName: 'Web Bot Auth Active',
+						name: 'webBotAuthActive',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to enable web bot authentication',
+					},
+					{
+						displayName: 'Workflow Human Recording',
+						name: 'workflowHumanRecording',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to enable workflow human recording',
 					},
 				],
 			},
@@ -1436,6 +1584,13 @@ export class AnchorBrowser implements INodeType {
 						description: 'Optional existing session ID to use',
 					},
 					{
+						displayName: 'Async',
+						name: 'async',
+						type: 'boolean',
+						default: false,
+						description: 'Whether to run the task asynchronously. If true, the task will start immediately and you can check its status using the List Executions operation.',
+					},
+					{
 						displayName: 'Inputs',
 						name: 'inputs',
 						type: 'json',
@@ -1801,7 +1956,9 @@ export class AnchorBrowser implements INodeType {
 				
 				// Disable web security
 				if (browserConfig.disableWebSecurity !== undefined) {
-					browserConfigBody.disable_web_security = browserConfig.disableWebSecurity;
+					browserConfigBody.disable_web_security = {
+						active: browserConfig.disableWebSecurity,
+					};
 				}
 				
 				// P2P download configuration
@@ -1826,8 +1983,11 @@ export class AnchorBrowser implements INodeType {
 				// Profile configuration
 				if (browserConfig.profileName !== undefined || 
 					browserConfig.persistProfile !== undefined || 
-					browserConfig.resetProfilePreferences !== undefined) {
-					browserConfigBody.profile = {};
+					browserConfig.resetProfilePreferences !== undefined ||
+					browserConfig.storeProfileCache !== undefined) {
+					if (!browserConfigBody.profile) {
+						browserConfigBody.profile = {};
+					}
 					if (browserConfig.profileName !== undefined) {
 						browserConfigBody.profile.name = browserConfig.profileName;
 					}
@@ -1836,6 +1996,105 @@ export class AnchorBrowser implements INodeType {
 					}
 					if (browserConfig.resetProfilePreferences !== undefined) {
 						browserConfigBody.profile.reset_preferences = browserConfig.resetProfilePreferences;
+					}
+					if (browserConfig.storeProfileCache !== undefined) {
+						browserConfigBody.profile.store_cache = browserConfig.storeProfileCache;
+					}
+				}
+				
+				// Extra stealth configuration
+				if (browserConfig.extraStealthActive !== undefined) {
+					browserConfigBody.extra_stealth = {
+						active: browserConfig.extraStealthActive,
+					};
+					if (browserConfig.extraStealthType !== undefined && browserConfig.extraStealthType !== '') {
+						browserConfigBody.extra_stealth.type = browserConfig.extraStealthType;
+					}
+				}
+				
+				// Extensions configuration
+				if (browserConfig.extensions !== undefined && browserConfig.extensions !== '') {
+					// Parse comma-separated extension IDs and trim whitespace
+					const extensionIds = browserConfig.extensions
+						.split(',')
+						.map((id: string) => id.trim())
+						.filter((id: string) => id !== '');
+					if (extensionIds.length > 0) {
+						browserConfigBody.extensions = extensionIds;
+					}
+				}
+				
+				// Disable page hooks configuration
+				if (browserConfig.disablePageHooks !== undefined) {
+					browserConfigBody.disable_page_hooks = {
+						active: browserConfig.disablePageHooks,
+					};
+				}
+				
+				// Inspector configuration
+				if (browserConfig.inspectorActive !== undefined) {
+					browserConfigBody.inspector = {
+						active: browserConfig.inspectorActive,
+					};
+				}
+				
+				// Media blocker configuration
+				if (browserConfig.mediaBlockerActive !== undefined) {
+					browserConfigBody.media_blocker = {
+						active: browserConfig.mediaBlockerActive,
+					};
+				}
+				
+				// Memory reduction configuration
+				if (browserConfig.memoryReductionActive !== undefined) {
+					browserConfigBody.memory_reduction = {
+						active: browserConfig.memoryReductionActive,
+					};
+				}
+				
+				// Disable back forward cache configuration
+				if (browserConfig.disableBackForwardCache !== undefined) {
+					browserConfigBody.disable_back_forward_cache = {
+						active: browserConfig.disableBackForwardCache,
+					};
+				}
+				
+				// Bypass CSP configuration
+				if (browserConfig.bypassCSP !== undefined) {
+					browserConfigBody.bypass_csp = {
+						active: browserConfig.bypassCSP,
+					};
+				}
+				
+				// Web bot auth configuration
+				if (browserConfig.webBotAuthActive !== undefined) {
+					browserConfigBody.web_bot_auth = {
+						active: browserConfig.webBotAuthActive,
+					};
+				}
+				
+				// Workflow human recording configuration
+				if (browserConfig.workflowHumanRecording !== undefined) {
+					browserConfigBody.workflow_human_recording = browserConfig.workflowHumanRecording;
+				}
+				
+				// PDF viewer configuration
+				if (browserConfig.pdfViewerActive !== undefined) {
+					browserConfigBody.pdf_viewer = {
+						active: browserConfig.pdfViewerActive,
+					};
+				}
+				
+				// User agent override configuration
+				if (browserConfig.uaOverrideActive !== undefined) {
+					browserConfigBody.ua_override = {
+						active: browserConfig.uaOverrideActive,
+					};
+					if (browserConfig.uaVersion !== undefined && browserConfig.uaVersion !== '') {
+						browserConfigBody.ua_override.uaVersion = browserConfig.uaVersion;
+					}
+					if (browserConfig.platformVersion !== undefined && browserConfig.platformVersion !== '') {
+						browserConfigBody.ua_override.platformVersion = browserConfig.platformVersion;
 					}
 				}
 				
@@ -2732,6 +2991,9 @@ export class AnchorBrowser implements INodeType {
 				if (runTaskConfig.taskSessionId !== undefined) {
 					body.taskSessionId = runTaskConfig.taskSessionId;
 				}
+				if (runTaskConfig.async !== undefined) {
+					body.async = runTaskConfig.async;
+				}
 				if (runTaskConfig.inputs !== undefined) {
 					// Parse JSON if it's a string
 					let inputs = runTaskConfig.inputs;
@@ -2802,6 +3064,20 @@ export class AnchorBrowser implements INodeType {
 					method: 'GET',
 					url: fullUrl,
 					qs,
+				});
+			}
+
+			case 'getExecution': {
+				const taskId = context.getNodeParameter('taskId', itemIndex) as string;
+				const executionId = context.getNodeParameter('executionId', itemIndex) as string;
+				
+				if (!executionId || executionId.trim() === '') {
+					throw new NodeOperationError(context.getNode(), 'Execution ID is required for get execution operation');
+				}
+				
+				return await context.helpers.httpRequestWithAuthentication.call(context, 'anchorBrowserApi', {
+					method: 'GET',
+					url: `${baseUrl}/v1/task/${taskId}/executions/${executionId}`,
 				});
 			}
 
