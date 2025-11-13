@@ -563,25 +563,6 @@ export class AnchorBrowser implements INodeType {
 						description: 'Comma-separated list of extension IDs (UUIDs) to load in the browser session. Extensions must be previously uploaded using the Extensions API.',
 					},
 					{
-						displayName: 'Extra Stealth Active',
-						name: 'extraStealthActive',
-						type: 'boolean',
-						default: false,
-						description: 'Whether to enable or disable extra stealth mode to enhance browser fingerprinting protection',
-					},
-					{
-						displayName: 'Extra Stealth Type',
-						name: 'extraStealthType',
-						type: 'string',
-						default: '',
-						displayOptions: {
-							show: {
-								extraStealthActive: [true],
-							},
-						},
-						description: 'Type of extra stealth mode (optional)',
-					},
-					{
 						displayName: 'Fullscreen Mode',
 						name: 'fullscreenMode',
 						type: 'boolean',
@@ -1999,16 +1980,6 @@ export class AnchorBrowser implements INodeType {
 					}
 					if (browserConfig.storeProfileCache !== undefined) {
 						browserConfigBody.profile.store_cache = browserConfig.storeProfileCache;
-					}
-				}
-				
-				// Extra stealth configuration
-				if (browserConfig.extraStealthActive !== undefined) {
-					browserConfigBody.extra_stealth = {
-						active: browserConfig.extraStealthActive,
-					};
-					if (browserConfig.extraStealthType !== undefined && browserConfig.extraStealthType !== '') {
-						browserConfigBody.extra_stealth.type = browserConfig.extraStealthType;
 					}
 				}
 				
